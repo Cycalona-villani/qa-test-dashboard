@@ -1,6 +1,6 @@
 describe('Defect management', () => {
     beforeEach(() => {
-        cy.visit('http://localhost:5173', {
+        cy.visit('http://localhost:5173/qa-test-dashboard/', {
             onBeforeLoad(win) {
                 win.localStorage.clear()
             },
