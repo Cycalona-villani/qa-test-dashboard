@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 type TestStatus = 'Not Run' | 'Passed' | 'Failed' | 'Blocked'
@@ -36,11 +36,51 @@ type Tab = (typeof tabs)[number]
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('Dashboard')
-  const [tests, setTests] = useState<TestCase[]>(initialTests)
+  const [newTitle, setNewTitle] = useState('')
+  const [newPriority, setNewPriority] =
+  useState<TestCase['priority']>('Medium')
+  const [tests, setTests] = useState<TestCase[]>(() => {
+  try {
+    const saved = localStorage.getItem('qa-dashboard-tests')
+    return saved ? JSON.parse(saved) : initialTests
+  } catch {
+    return initialTests
+  }
+})
+
+useEffect(() => {
+  localStorage.setItem('qa-dashboard-tests', JSON.stringify(tests))
+}, [tests])
 
   const passed = tests.filter((test) => test.status === 'Passed').length
   const failed = tests.filter((test) => test.status === 'Failed').length
   const executed = tests.filter((test) => test.status !== 'Not Run').length
+
+  function addTestCase() {
+  const title = newTitle.trim()
+  if (!title) return
+
+  setTests((current) => {
+    const nextNumber =
+      Math.max(
+        0,
+        ...current.map((test) => Number(test.id.replace('TC-', '')) || 0),
+      ) + 1
+
+    return [
+      ...current,
+      {
+        id: `TC-${String(nextNumber).padStart(3, '0')}`,
+        title,
+        priority: newPriority,
+        status: 'Not Run',
+      },
+    ]
+  })
+
+  setNewTitle('')
+  setNewPriority('Medium')
+}
 
   function updateStatus(id: string, status: TestStatus) {
     setTests((current) =>
@@ -129,6 +169,47 @@ function App() {
                 ? 'Sample test cases for the provider verification workflow.'
                 : 'Record manual test results. Summary counts update automatically.'}
             </p>
+            {activeTab === 'Test Cases' && (
+  <form
+    className="test-form"
+    onSubmit={(event) => {
+      event.preventDefault()
+      addTestCase()
+    }}
+  >
+    <label htmlFor="test-title">Test case title</label>
+    <input
+      id="test-title"
+      type="text"
+      value={newTitle}
+      onChange={(event) => setNewTitle(event.target.value)}
+      placeholder="Example: Prevent two reviewers from approving at once"
+      maxLength={200}
+      required
+    />
+
+    <label htmlFor="test-priority">Priority</label>
+    <select
+      id="test-priority"
+      value={newPriority}
+      onChange={(event) =>
+        setNewPriority(event.target.value as TestCase['priority'])
+      }
+    >
+      <option>High</option>
+      <option>Medium</option>
+      <option>Low</option>
+    </select>
+
+    <button
+      type="submit"
+      className="primary-button"
+      disabled={!newTitle.trim()}
+    >
+      Add Test Case
+    </button>
+  </form>
+)}
 
             <div className="table-wrapper">
               <table>
@@ -187,7 +268,7 @@ function App() {
       </main>
 
       <footer>
-        Demo workspace · Results currently reset when the page reloads.
+        Demo workspace · Results are saved in this browser.
       </footer>
     </div>
   )

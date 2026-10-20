@@ -194,3 +194,42 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+.test-form {
+  display: grid;
+  gap: 10px;
+  max-width: 600px;
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #dce3e8;
+  border-radius: 8px;
+  background: #f8fafb;
+}
+
+.test-form label {
+  color: #183047;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.test-form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #bdcbd5;
+  border-radius: 6px;
+  background: white;
+}
+
+.test-form input:focus-visible {
+  outline: 3px solid #087f75;
+  outline-offset: 3px;
+}
+
+.test-form .primary-button {
+  justify-self: start;
+}
+
+.primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
