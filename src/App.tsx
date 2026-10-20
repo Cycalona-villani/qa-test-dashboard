@@ -12,6 +12,7 @@ type TestCase = {
 
 type Defect = {
   id: string
+  testCaseId?: string
   title: string
   steps: string
   expected: string
@@ -72,7 +73,7 @@ const [defectSteps, setDefectSteps] = useState('')
 const [defectExpected, setDefectExpected] = useState('')
 const [defectActual, setDefectActual] = useState('')
 const [defectSeverity, setDefectSeverity] =
-  useState<Defect['severity']>('Medium')
+useState<Defect['severity']>('Medium')
 
 useEffect(() => {
   localStorage.setItem('qa-dashboard-defects', JSON.stringify(defects))
@@ -91,6 +92,7 @@ useEffect(() => {
   const passed = tests.filter((test) => test.status === 'Passed').length
   const failed = tests.filter((test) => test.status === 'Failed').length
   const executed = tests.filter((test) => test.status !== 'Not Run').length
+  const [defectTestCaseId, setDefectTestCaseId] = useState('')
 
   function updateDefectStatus(id: string, status: Defect['status']) {
   setDefects((current) =>
@@ -113,6 +115,7 @@ useEffect(() => {
     {
       id: `BUG-${crypto.randomUUID()}`,
       title,
+      testCaseId: defectTestCaseId || undefined,
       steps,
       expected,
       actual,
@@ -122,6 +125,7 @@ useEffect(() => {
   ])
 
   setDefectTitle('')
+  setDefectTestCaseId('')
   setDefectSteps('')
   setDefectExpected('')
   setDefectActual('')
@@ -343,6 +347,19 @@ useEffect(() => {
         addDefect()
       }}
     >
+      <label htmlFor="defect-test">Related test case</label>
+<select
+  id="defect-test"
+  value={defectTestCaseId}
+  onChange={(event) => setDefectTestCaseId(event.target.value)}
+>
+  <option value="">No linked test case</option>
+  {tests.map((test) => (
+    <option key={test.id} value={test.id}>
+      {test.id} — {test.title}
+    </option>
+  ))}
+</select>
       <label htmlFor="defect-title">Defect title</label>
       <input
         id="defect-title"
@@ -417,6 +434,15 @@ useEffect(() => {
         {defects.map((defect) => (
           <article className="defect-card" key={defect.id}>
             <h3>{defect.title}</h3>
+            <p>
+              <strong>Related test:</strong>{' '}
+              {defect.testCaseId
+                ? `${defect.testCaseId} — ${
+                    tests.find((test) => test.id === defect.testCaseId)?.title ??
+                    'Test case unavailable'
+            }`
+                : 'No linked test case'}
+            </p>
             <p><strong>Severity:</strong> {defect.severity}</p>
             <label htmlFor={`status-${defect.id}`}>
   <strong>Status: </strong>
