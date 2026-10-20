@@ -1,75 +1,110 @@
-# React + TypeScript + Vite
+# QA Test Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React and TypeScript application for managing test cases,
+recording manual test results, and tracking defects.
 
-Currently, two official plugins are available:
+[Live Demo](https://cycalona-villani.github.io/qa-test-dashboard/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- Create test cases with steps, expected results, and priority.
+- Record Passed, Failed, Blocked, and Not Run results.
+- Report defects with reproduction steps, expected and actual
+  results, and severity.
+- Link defects to related test cases.
+- Track defects through Open, In Progress, Resolved, and Closed.
+- View dashboard counts that update when results change.
+- Preserve records after refresh using browser localStorage.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The dashboard currently counts Passed, Failed, and Blocked
+results as executed. Open Defects includes every defect
+that has not been closed.
 
-## Expanding the ESLint configuration
+## Technology
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React
+- TypeScript
+- Vite
+- CSS
+- Cypress
+- GitHub Actions
+- GitHub Pages
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Run Locally
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Requires Node.js 24 and npm.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+git clone https://github.com/Cycalona-villani/qa-test-dashboard.git
+cd qa-test-dashboard
+npm ci
+npm run dev -- --port 5173 --strictPort
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Open:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+http://localhost:5173/qa-test-dashboard/
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Automated Tests
 
+Keep the development server running. In a second terminal:
+
+```bash
+npx cypress run
 ```
+
+To use the interactive test runner:
+
+```bash
+npx cypress open
+```
+
+Three end-to-end tests cover:
+
+1. Creating a test case, displaying its instructions, and
+   preserving it after refresh.
+2. Linking a defect to a test case, closing it, and verifying
+   the dashboard count and saved status.
+3. Recording test results, verifying dashboard counts,
+   preserving results, and resetting a result to Not Run.
+
+Each test starts with cleared browser storage for
+repeatable results.
+
+## Build
+
+```bash
+npm run build
+```
+
+## Continuous Integration and Deployment
+
+On pushes to main, GitHub Actions:
+
+1. Installs dependencies.
+2. Builds the application.
+3. Starts the development server.
+4. Runs the Cypress tests.
+5. Deploys the built application to GitHub Pages only
+   when the build and tests succeed.
+
+Workflow: `.github/workflows/deploy.yml`
+
+[View Workflow Runs](https://github.com/Cycalona-villani/qa-test-dashboard/actions)
+
+## Current Scope
+
+This is a frontend portfolio demonstration. Records are
+stored in the current browser, with no backend, shared
+database, or user accounts. Data does not sync between
+devices or browsers.
+
+The sample test cases reference a separate Provider
+Verification System project. Reported practice defects
+are demonstration data, not confirmed issues in that system.
+
+## Author
+
+Cycalona Villani
+
+[Portfolio](https://cycalona-villani.github.io/cycalona-portfolio/)
