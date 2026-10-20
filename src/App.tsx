@@ -10,6 +10,15 @@ type TestCase = {
   status: TestStatus
 }
 
+type Defect = {
+  id: string
+  title: string
+  steps: string
+  expected: string
+  actual: string
+  severity: 'Critical' | 'High' | 'Medium' | 'Low'
+}
+
 const initialTests: TestCase[] = [
   {
     id: 'TC-001',
@@ -48,6 +57,30 @@ function App() {
   }
 })
 
+const [defects, setDefects] = useState<Defect[]>(() => {
+  try {
+    const saved = localStorage.getItem('qa-dashboard-defects')
+    return saved ? JSON.parse(saved) : []
+  } catch {
+    return []
+  }
+})
+
+const [defectTitle, setDefectTitle] = useState('')
+const [defectSteps, setDefectSteps] = useState('')
+const [defectExpected, setDefectExpected] = useState('')
+const [defectActual, setDefectActual] = useState('')
+const [defectSeverity, setDefectSeverity] =
+  useState<Defect['severity']>('Medium')
+
+useEffect(() => {
+  localStorage.setItem('qa-dashboard-defects', JSON.stringify(defects))
+}, [defects])
+
+useEffect(() => {
+  localStorage.setItem('qa-dashboard-defects', JSON.stringify(defects))
+}, [defects])
+
 useEffect(() => {
   localStorage.setItem('qa-dashboard-tests', JSON.stringify(tests))
 }, [tests])
@@ -55,6 +88,33 @@ useEffect(() => {
   const passed = tests.filter((test) => test.status === 'Passed').length
   const failed = tests.filter((test) => test.status === 'Failed').length
   const executed = tests.filter((test) => test.status !== 'Not Run').length
+
+  function addDefect() {
+  const title = defectTitle.trim()
+  const steps = defectSteps.trim()
+  const expected = defectExpected.trim()
+  const actual = defectActual.trim()
+
+  if (!title || !steps || !expected || !actual) return
+
+  setDefects((current) => [
+    ...current,
+    {
+      id: `BUG-${crypto.randomUUID()}`,
+      title,
+      steps,
+      expected,
+      actual,
+      severity: defectSeverity,
+    },
+  ])
+
+  setDefectTitle('')
+  setDefectSteps('')
+  setDefectExpected('')
+  setDefectActual('')
+  setDefectSeverity('Medium')
+}
 
   function addTestCase() {
   const title = newTitle.trim()
@@ -257,14 +317,107 @@ useEffect(() => {
         )}
 
         {activeTab === 'Defects' && (
-          <section className="panel">
-            <h2>Defect Tracking</h2>
-            <p>
-              Next, we’ll add defect reports with reproduction steps,
-              expected and actual results, severity, and status.
-            </p>
-          </section>
-        )}
+  <section className="panel">
+    <h2>Defect Tracking</h2>
+    <p>Document issues so another developer can reproduce them.</p>
+
+    <form
+      className="test-form"
+      onSubmit={(event) => {
+        event.preventDefault()
+        addDefect()
+      }}
+    >
+      <label htmlFor="defect-title">Defect title</label>
+      <input
+        id="defect-title"
+        value={defectTitle}
+        onChange={(event) => setDefectTitle(event.target.value)}
+        maxLength={200}
+        required
+      />
+
+      <label htmlFor="defect-steps">Steps to reproduce</label>
+      <textarea
+        id="defect-steps"
+        value={defectSteps}
+        onChange={(event) => setDefectSteps(event.target.value)}
+        placeholder="1. Open a provider record..."
+        rows={4}
+        required
+      />
+
+      <label htmlFor="defect-expected">Expected result</label>
+      <textarea
+        id="defect-expected"
+        value={defectExpected}
+        onChange={(event) => setDefectExpected(event.target.value)}
+        rows={3}
+        required
+      />
+
+      <label htmlFor="defect-actual">Actual result</label>
+      <textarea
+        id="defect-actual"
+        value={defectActual}
+        onChange={(event) => setDefectActual(event.target.value)}
+        rows={3}
+        required
+      />
+
+      <label htmlFor="defect-severity">Severity</label>
+      <select
+        id="defect-severity"
+        value={defectSeverity}
+        onChange={(event) =>
+          setDefectSeverity(event.target.value as Defect['severity'])
+        }
+      >
+        <option>Critical</option>
+        <option>High</option>
+        <option>Medium</option>
+        <option>Low</option>
+      </select>
+
+      <button
+        type="submit"
+        className="primary-button"
+        disabled={
+          !defectTitle.trim() ||
+          !defectSteps.trim() ||
+          !defectExpected.trim() ||
+          !defectActual.trim()
+        }
+      >
+        Report Defect
+      </button>
+    </form>
+
+    <h3>Reported Defects ({defects.length})</h3>
+
+    {defects.length === 0 ? (
+      <p>No defects reported yet.</p>
+    ) : (
+      <div className="defect-list">
+        {defects.map((defect) => (
+          <article className="defect-card" key={defect.id}>
+            <h3>{defect.title}</h3>
+            <p><strong>Severity:</strong> {defect.severity}</p>
+
+            <h4>Steps to reproduce</h4>
+            <p className="preserve-lines">{defect.steps}</p>
+
+            <h4>Expected result</h4>
+            <p className="preserve-lines">{defect.expected}</p>
+
+            <h4>Actual result</h4>
+            <p className="preserve-lines">{defect.actual}</p>
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+)}
       </main>
 
       <footer>

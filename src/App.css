@@ -233,3 +233,42 @@ footer {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.test-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #bdcbd5;
+  border-radius: 6px;
+  background: white;
+  resize: vertical;
+}
+
+.test-form textarea:focus-visible {
+  outline: 3px solid #087f75;
+  outline-offset: 3px;
+}
+
+.defect-list {
+  display: grid;
+  gap: 16px;
+}
+
+.defect-card {
+  padding: 20px;
+  border: 1px solid #dce3e8;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+
+.defect-card h3 {
+  margin-top: 0;
+}
+
+.defect-card h4 {
+  margin-bottom: 6px;
+  color: #183047;
+}
+
+.preserve-lines {
+  white-space: pre-wrap;
+}
