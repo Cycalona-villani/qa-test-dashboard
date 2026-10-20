@@ -17,6 +17,7 @@ type Defect = {
   expected: string
   actual: string
   severity: 'Critical' | 'High' | 'Medium' | 'Low'
+  status: 'Open' | 'In Progress' | 'Resolved' | 'Closed'
 }
 
 const initialTests: TestCase[] = [
@@ -84,10 +85,20 @@ useEffect(() => {
 useEffect(() => {
   localStorage.setItem('qa-dashboard-tests', JSON.stringify(tests))
 }, [tests])
-
+  const openDefects = defects.filter(
+  (defect) => defect.status !== 'Closed',
+).length
   const passed = tests.filter((test) => test.status === 'Passed').length
   const failed = tests.filter((test) => test.status === 'Failed').length
   const executed = tests.filter((test) => test.status !== 'Not Run').length
+
+  function updateDefectStatus(id: string, status: Defect['status']) {
+  setDefects((current) =>
+    current.map((defect) =>
+      defect.id === id ? { ...defect, status } : defect,
+    ),
+  )
+}
 
   function addDefect() {
   const title = defectTitle.trim()
@@ -106,6 +117,7 @@ useEffect(() => {
       expected,
       actual,
       severity: defectSeverity,
+      status: 'Open',
     },
   ])
 
@@ -202,7 +214,10 @@ useEffect(() => {
                 <h2>{failed}</h2>
               </article>
             </section>
-
+            <article className="stat-card">
+              <p>Open Defects</p>
+              <h2>{openDefects}</h2>
+            </article>
             <section className="panel">
               <h2>Project Overview</h2>
               <p>
@@ -403,6 +418,25 @@ useEffect(() => {
           <article className="defect-card" key={defect.id}>
             <h3>{defect.title}</h3>
             <p><strong>Severity:</strong> {defect.severity}</p>
+            <label htmlFor={`status-${defect.id}`}>
+  <strong>Status: </strong>
+</label>
+
+      <select
+        id={`status-${defect.id}`}
+        value={defect.status ?? 'Open'}
+        onChange={(event) =>
+          updateDefectStatus(
+            defect.id,
+            event.target.value as Defect['status'],
+          )
+        }
+      >
+        <option>Open</option>
+        <option>In Progress</option>
+        <option>Resolved</option>
+        <option>Closed</option>
+      </select>
 
             <h4>Steps to reproduce</h4>
             <p className="preserve-lines">{defect.steps}</p>
